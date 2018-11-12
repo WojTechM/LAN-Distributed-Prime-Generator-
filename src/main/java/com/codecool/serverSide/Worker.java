@@ -20,7 +20,13 @@ public class Worker implements Runnable {
     }
 
     EResult getResult() {
-        return result;
+        synchronized (this) {
+            return result;
+        }
+    }
+
+    public void setResult(EResult result) {
+        this.result = result;
     }
 
     @Override
@@ -50,19 +56,21 @@ public class Worker implements Runnable {
 
     public synchronized void assignTask(Task task) {
         this.task = task;
+        this.result = EResult.InProgress;
         this.notify();
     }
 
-    private void waitForTask() throws InterruptedException {
+    private synchronized void waitForTask() throws InterruptedException {
         while (task == null) {
-            System.out.println("Waiting for new task");
             this.wait();
         }
     }
 
     private void handleTask(ObjectInputStream inputStream, ObjectOutputStream outputStream) throws IOException, ClassNotFoundException {
-        this.result = EResult.InProgress;
-        outputStream.writeObject(this.task);
-        this.result = (EResult) inputStream.readObject();
+        synchronized (this) {
+            outputStream.writeObject(this.task);
+            this.task = null;
+            this.result = (EResult) inputStream.readObject();
+        }
     }
 }

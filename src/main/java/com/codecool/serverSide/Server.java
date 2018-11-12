@@ -24,11 +24,17 @@ public class Server {
             if (workers.isEmpty()) {
                 waitForWorkers();
             }
+            isPrime = false;
             splitWorkIntoTasks(potentialPrime);
-            assignTasks();
-            isPrime = validateResult();
+            while (!availableTasks.isEmpty()) {
+                assignTasks();
+                isPrime = validateResult();
+                if (!isPrime) {
+                    availableTasks.clear();
+                }
+            }
             if (isPrime) {
-                System.out.println(potentialPrime);
+                System.out.println(potentialPrime + " is Prime!");
             }
             potentialPrime += 2;
         }
@@ -46,11 +52,12 @@ public class Server {
             }
             Task task = new Task(potentialPrime, from, to);
             availableTasks.add(task);
+            iteration++;
         }
     }
 
     private void assignTasks() {
-        for(Worker worker : workers) {
+        for (Worker worker : workers) {
             if (availableTasks.isEmpty()) {
                 return;
             }
@@ -58,12 +65,11 @@ public class Server {
         }
     }
 
-    private boolean validateResult() {
-
+    boolean validateResult() {
         while (true) {
             boolean allWorkersFinished = true;
             boolean result = true;
-            for(Worker worker : workers) {
+            for (Worker worker : workers) {
                 if (isStillWorking(worker)) {
                     allWorkersFinished = false;
                 }
