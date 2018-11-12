@@ -1,5 +1,7 @@
 package com.codecool.model;
 
-public enum EResult {
+import java.io.Serializable;
+
+public enum EResult implements Serializable {
     Valid, Invalid, Disconnected, InProgress
 }
