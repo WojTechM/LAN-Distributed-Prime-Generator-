@@ -48,8 +48,9 @@ public class Worker implements Runnable {
         }
     }
 
-    public void assignTask(Task task) {
+    public synchronized void assignTask(Task task) {
         this.task = task;
+        this.notify();
     }
 
     private void waitForTask() throws InterruptedException {

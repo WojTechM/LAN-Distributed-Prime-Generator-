@@ -3,12 +3,13 @@ package com.codecool.serverSide;
 import com.codecool.model.EResult;
 import com.codecool.model.Task;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Server {
 
-    private List<Worker> workers;
-    private List<Task> availableTasks;
+    private List<Worker> workers = new ArrayList<>();
+    private List<Task> availableTasks = new ArrayList<>();
 
     public Server(int port) {
         WorkerRegistration registration = new WorkerRegistration(this, port);
@@ -16,10 +17,13 @@ public class Server {
         registrationThread.start();
     }
 
-    public void run() {
+    public void run() throws InterruptedException {
         int potentialPrime = 3;
         boolean isPrime;
         while (!Thread.currentThread().isInterrupted()) {
+            if (workers.isEmpty()) {
+                waitForWorkers();
+            }
             splitWorkIntoTasks(potentialPrime);
             assignTasks();
             isPrime = validateResult();
@@ -37,7 +41,7 @@ public class Server {
             int from = iteration * 100;
             int to = from + 100;
             if (to > potentialPrime) {
-                to = potentialPrime;
+                to = potentialPrime - 1;
                 reachedEnd = true;
             }
             Task task = new Task(potentialPrime, from, to);
@@ -82,7 +86,14 @@ public class Server {
         return worker.getResult().equals(EResult.InProgress);
     }
 
-    void addWorker(Worker worker) {
+    synchronized void addWorker(Worker worker) {
         workers.add(worker);
+        this.notify();
+    }
+
+    private synchronized void waitForWorkers() throws InterruptedException {
+        while (workers.isEmpty()) {
+            this.wait();
+        }
     }
 }
