@@ -9,7 +9,7 @@ public class WorkerRegistration implements Runnable {
     private final Server server;
     private final int port;
 
-    public WorkerRegistration(Server server, int port) {
+    WorkerRegistration(Server server, int port) {
         this.server = server;
         this.port = port;
     }
@@ -22,6 +22,7 @@ public class WorkerRegistration implements Runnable {
             while (!currentThread.isInterrupted()) {
                 Socket socket = serverSocket.accept();
                 Worker worker = new Worker(socket);
+                new Thread(worker).start();
                 this.server.addWorker(worker);
             }
         } catch (IOException e) {
