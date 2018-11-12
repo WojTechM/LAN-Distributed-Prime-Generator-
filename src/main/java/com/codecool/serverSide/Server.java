@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Server {
 
-    private List<Worker> users;
+    private List<Worker> workers;
     private List<Task> availableTasks;
 
     public Server(int port) {
@@ -38,14 +38,19 @@ public class Server {
     }
 
     private void assignTasks() {
-
+        for(Worker worker : workers) {
+            if (availableTasks.isEmpty()) {
+                return;
+            }
+            worker.assignTask(availableTasks.remove(0));
+        }
     }
 
     private void validateResult() {
 
     }
 
-    public void addWorker(Worker worker) {
-        users.add(worker);
+    void addWorker(Worker worker) {
+        workers.add(worker);
     }
 }
