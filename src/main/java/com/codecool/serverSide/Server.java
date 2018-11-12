@@ -1,5 +1,6 @@
 package com.codecool.serverSide;
 
+import com.codecool.model.EResult;
 import com.codecool.model.Task;
 
 import java.util.List;
@@ -55,7 +56,30 @@ public class Server {
 
     private boolean validateResult() {
 
-        return false;
+        while (true) {
+            boolean allWorkersFinished = true;
+            boolean result = true;
+            for(Worker worker : workers) {
+                if (isStillWorking(worker)) {
+                    allWorkersFinished = false;
+                }
+
+                if (numberIsNotPrime(worker)) {
+                    result = false;
+                }
+            }
+            if (allWorkersFinished) {
+                return result;
+            }
+        }
+    }
+
+    private boolean numberIsNotPrime(Worker worker) {
+        return worker.getResult().equals(EResult.Invalid);
+    }
+
+    private boolean isStillWorking(Worker worker) {
+        return worker.getResult().equals(EResult.InProgress);
     }
 
     void addWorker(Worker worker) {
