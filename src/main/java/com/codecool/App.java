@@ -22,7 +22,11 @@ public class App {
                 break;
             case "server":
                 Server server = new Server(port);
-                server.run();
+                try {
+                    server.run();
+                } catch (InterruptedException e) {
+                    System.out.println("Server shutting down.");
+                }
                 break;
         }
     }
