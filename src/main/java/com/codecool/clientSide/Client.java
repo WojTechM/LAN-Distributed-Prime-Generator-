@@ -58,18 +58,27 @@ public class Client implements Runnable {
     }
 
     public EResult partialCheck(Task task) {
-        boolean isPrime = false;
+        boolean isPrime = true;
         int toCheck = task.getPotentialPrime();
-        for(int i = task.getFrom(); i <= toCheck / 2; ++i)
+        int limit = getLimit(task);
+        for(int i = task.getFrom(); i <= limit; ++i)
         {
-
             if(toCheck % i == 0)
             {
-                isPrime = true;
+                isPrime = false;
                 break;
             }
         }
 
         return isPrime ? EResult.Valid : EResult.Invalid;
+    }
+
+    private int getLimit(Task task) {
+        int defaultLimit = task.getPotentialPrime() / 2;
+        int requested = task.getTo();
+        if (defaultLimit < requested) {
+            return defaultLimit;
+        }
+        return requested;
     }
 }
