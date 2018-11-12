@@ -17,8 +17,15 @@ public class Server {
 
     public void run() {
         int potentialPrime = 3;
+        boolean isPrime;
         while (!Thread.currentThread().isInterrupted()) {
             splitWorkIntoTasks(potentialPrime);
+            assignTasks();
+            isPrime = validateResult();
+            if (isPrime) {
+                System.out.println(potentialPrime);
+            }
+            potentialPrime += 2;
         }
     }
 
@@ -46,8 +53,9 @@ public class Server {
         }
     }
 
-    private void validateResult() {
+    private boolean validateResult() {
 
+        return false;
     }
 
     void addWorker(Worker worker) {
