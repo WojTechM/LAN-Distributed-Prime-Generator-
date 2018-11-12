@@ -25,8 +25,9 @@ public class Client implements Runnable {
         ObjectOutputStream outputStream;
         try {
             connection = new Socket(address, port);
-            inputStream = new ObjectInputStream(connection.getInputStream());
             outputStream = new ObjectOutputStream(connection.getOutputStream());
+            outputStream.flush();
+            inputStream = new ObjectInputStream(connection.getInputStream());
 
         } catch (IOException e) {
             System.out.println("Unable to connect with server.");
@@ -60,17 +61,22 @@ public class Client implements Runnable {
     public EResult partialCheck(Task task) {
         boolean isPrime = true;
         int toCheck = task.getPotentialPrime();
+        int start = getStart(task);
         int limit = getLimit(task);
-        for(int i = task.getFrom(); i <= limit; ++i)
-        {
-            if(toCheck % i == 0)
-            {
+        for (int i = start; i <= limit; ++i) {
+            if (toCheck % i == 0) {
                 isPrime = false;
                 break;
             }
         }
-
         return isPrime ? EResult.Valid : EResult.Invalid;
+    }
+
+    private int getStart(Task task) {
+        if (task.getFrom() < 2) {
+            return 2;
+        }
+        return task.getFrom();
     }
 
     private int getLimit(Task task) {

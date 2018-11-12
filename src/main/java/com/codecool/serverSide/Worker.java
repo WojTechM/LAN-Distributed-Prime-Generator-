@@ -7,22 +7,19 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class Worker implements Runnable {
 
     private Task task;
     private Socket socket;
     private EResult result;
-    private Lock noTaskAssigned = new ReentrantLock();
 
-    public Worker(Socket socket) {
+    Worker(Socket socket) {
         this.socket = socket;
         this.result = EResult.InProgress;
     }
 
-    public EResult getResult() {
+    EResult getResult() {
         return result;
     }
 
@@ -31,8 +28,9 @@ public class Worker implements Runnable {
         ObjectInputStream inputStream;
         ObjectOutputStream outputStream;
         try {
-            inputStream = new ObjectInputStream(socket.getInputStream());
             outputStream = new ObjectOutputStream(socket.getOutputStream());
+            outputStream.flush();
+            inputStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
             System.out.println("Could not connect to socket.");
             result = EResult.Disconnected;
@@ -52,12 +50,12 @@ public class Worker implements Runnable {
 
     public void assignTask(Task task) {
         this.task = task;
-        noTaskAssigned.notifyAll();
     }
 
     private void waitForTask() throws InterruptedException {
         while (task == null) {
-            noTaskAssigned.wait();
+            System.out.println("Waiting for new task");
+            this.wait();
         }
     }
 
