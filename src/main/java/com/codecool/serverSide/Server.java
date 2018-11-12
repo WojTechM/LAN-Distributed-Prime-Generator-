@@ -2,13 +2,15 @@ package com.codecool.serverSide;
 
 import com.codecool.model.EResult;
 import com.codecool.model.Task;
+import com.codecool.serverSide.exceptions.LackOfWorkersException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Server {
 
-    private List<Worker> workers = new ArrayList<>();
+    private List<Worker> availableWorkers = Collections.synchronizedList(new ArrayList<>());
     private List<Task> availableTasks = new ArrayList<>();
 
     public Server(int port) {
@@ -19,25 +21,35 @@ public class Server {
 
     public void run() throws InterruptedException {
         int potentialPrime = 3;
-        boolean isPrime;
         while (!Thread.currentThread().isInterrupted()) {
-            if (workers.isEmpty()) {
-                waitForWorkers();
+            boolean isPrime = isPrime(potentialPrime);
+            if (isPrime) {
+                System.out.println(potentialPrime + " is Prime!");
+            } else {
+                System.out.println(potentialPrime + " is not Prime!");
             }
-            isPrime = false;
-            splitWorkIntoTasks(potentialPrime);
-            while (!availableTasks.isEmpty()) {
-                assignTasks();
+            potentialPrime += 2;
+        }
+    }
+
+    private boolean isPrime(int potentialPrime) throws InterruptedException {
+        if (availableWorkers.isEmpty()) {
+            waitForWorkers();
+        }
+        boolean isPrime = false;
+        splitWorkIntoTasks(potentialPrime);
+        while (!availableTasks.isEmpty()) {
+            assignTasks();
+            try {
                 isPrime = validateResult();
                 if (!isPrime) {
                     availableTasks.clear();
                 }
+            } catch (LackOfWorkersException e) {
+                waitForWorkers();
             }
-            if (isPrime) {
-                System.out.println(potentialPrime + " is Prime!");
-            }
-            potentialPrime += 2;
         }
+        return isPrime;
     }
 
     private void splitWorkIntoTasks(int potentialPrime) {
@@ -57,7 +69,7 @@ public class Server {
     }
 
     private void assignTasks() {
-        for (Worker worker : workers) {
+        for (Worker worker : availableWorkers) {
             if (availableTasks.isEmpty()) {
                 return;
             }
@@ -65,11 +77,16 @@ public class Server {
         }
     }
 
-    boolean validateResult() {
-        while (true) {
+    boolean validateResult() throws LackOfWorkersException {
+        List<Worker> disconnected = new ArrayList<>();
+        while (!this.availableWorkers.isEmpty()) {
             boolean allWorkersFinished = true;
             boolean result = true;
-            for (Worker worker : workers) {
+            for (Worker worker : this.availableWorkers) {
+                if (hasDisconnected(worker)) {
+                    disconnected.add(worker);
+                }
+
                 if (isStillWorking(worker)) {
                     allWorkersFinished = false;
                 }
@@ -78,9 +95,20 @@ public class Server {
                     result = false;
                 }
             }
+
+            handleDisconnectedWorkers(disconnected);
+
             if (allWorkersFinished) {
                 return result;
             }
+        }
+        throw new LackOfWorkersException();
+    }
+
+    private void handleDisconnectedWorkers(List<Worker> disconnected) {
+        for (Worker worker : disconnected) {
+            availableTasks.add(worker.getTask());
+            availableWorkers.remove(worker);
         }
     }
 
@@ -88,17 +116,24 @@ public class Server {
         return worker.getResult().equals(EResult.Invalid);
     }
 
+    private boolean hasDisconnected(Worker worker) {
+        if (worker == null) {
+            return true;
+        }
+        return worker.getResult().equals(EResult.Disconnected);
+    }
+
     private boolean isStillWorking(Worker worker) {
         return worker.getResult().equals(EResult.InProgress);
     }
 
     synchronized void addWorker(Worker worker) {
-        workers.add(worker);
+        availableWorkers.add(worker);
         this.notify();
     }
 
     private synchronized void waitForWorkers() throws InterruptedException {
-        while (workers.isEmpty()) {
+        while (availableWorkers.isEmpty()) {
             this.wait();
         }
     }
