@@ -43,7 +43,7 @@ public class Worker implements Runnable {
             try {
                 waitForTask();
                 handleTask(inputStream, outputStream);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | IOException | ClassNotFoundException e) {
                 System.out.println("Connection error. Disconnecting.");
                 result = EResult.Disconnected;
             }
@@ -61,7 +61,9 @@ public class Worker implements Runnable {
         }
     }
 
-    private void handleTask(ObjectInputStream inputStream, ObjectOutputStream outputStream) {
-
+    private void handleTask(ObjectInputStream inputStream, ObjectOutputStream outputStream) throws IOException, ClassNotFoundException {
+        this.result = EResult.InProgress;
+        outputStream.writeObject(this.task);
+        this.result = (EResult) inputStream.readObject();
     }
 }
