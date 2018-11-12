@@ -1,6 +1,7 @@
 package com.codecool;
 
 import com.codecool.clientSide.Client;
+import com.codecool.serverSide.Server;
 
 public class App {
 
@@ -18,6 +19,10 @@ public class App {
             case "client":
                 Runnable client = new Client(address, port);
                 new Thread(client).start();
+                break;
+            case "server":
+                Server server = new Server(port);
+                server.run();
                 break;
         }
     }
