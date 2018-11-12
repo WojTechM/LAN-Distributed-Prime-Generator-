@@ -23,12 +23,16 @@ public class Server {
         int potentialPrime = 3;
         while (!Thread.currentThread().isInterrupted()) {
             boolean isPrime = isPrime(potentialPrime);
-            if (isPrime) {
-                System.out.println(potentialPrime + " is Prime!");
-            } else {
-                System.out.println(potentialPrime + " is not Prime!");
-            }
+            printResult(potentialPrime, isPrime);
             potentialPrime += 2;
+        }
+    }
+
+    private void printResult(int potentialPrime, boolean isPrime) {
+        if (isPrime) {
+            System.out.println(potentialPrime + " is Prime!");
+        } else {
+            System.out.println(potentialPrime + " is not Prime!");
         }
     }
 
