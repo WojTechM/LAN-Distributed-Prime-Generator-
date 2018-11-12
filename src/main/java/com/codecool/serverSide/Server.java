@@ -4,13 +4,12 @@ import com.codecool.model.EResult;
 import com.codecool.model.Task;
 import com.codecool.serverSide.exceptions.LackOfWorkersException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Server {
 
     private List<Worker> availableWorkers = Collections.synchronizedList(new ArrayList<>());
+    private Set<Worker> currentlyWorking = new HashSet<>();
     private List<Task> availableTasks = new ArrayList<>();
 
     public Server(int port) {
@@ -43,17 +42,27 @@ public class Server {
         boolean isPrime = false;
         splitWorkIntoTasks(potentialPrime);
         while (!availableTasks.isEmpty()) {
-            assignTasks();
+            prepareCurrentlyWorking();
             try {
+                assignTasks();
                 isPrime = validateResult();
                 if (!isPrime) {
                     availableTasks.clear();
                 }
             } catch (LackOfWorkersException e) {
+                removeDisconnectedWorkers();
                 waitForWorkers();
             }
         }
         return isPrime;
+    }
+
+    private void prepareCurrentlyWorking() {
+        for (Worker worker : availableWorkers) {
+            if (!hasDisconnected(worker)) {
+                currentlyWorking.add(worker);
+            }
+        }
     }
 
     private void splitWorkIntoTasks(int potentialPrime) {
@@ -72,10 +81,13 @@ public class Server {
         }
     }
 
-    private void assignTasks() {
-        for (Worker worker : availableWorkers) {
+    private void assignTasks() throws LackOfWorkersException {
+        for (Worker worker : currentlyWorking) {
             if (availableTasks.isEmpty()) {
                 return;
+            }
+            if (hasDisconnected(worker)) {
+                throw new LackOfWorkersException();
             }
             worker.assignTask(availableTasks.remove(0));
         }
@@ -83,10 +95,10 @@ public class Server {
 
     boolean validateResult() throws LackOfWorkersException {
         List<Worker> disconnected = new ArrayList<>();
-        while (!this.availableWorkers.isEmpty()) {
+        while (!this.currentlyWorking.isEmpty()) {
             boolean allWorkersFinished = true;
             boolean result = true;
-            for (Worker worker : this.availableWorkers) {
+            for (Worker worker : this.currentlyWorking) {
                 if (hasDisconnected(worker)) {
                     disconnected.add(worker);
                 }
@@ -109,9 +121,20 @@ public class Server {
         throw new LackOfWorkersException();
     }
 
+    private void removeDisconnectedWorkers() {
+        List<Worker> disconnected = new ArrayList<>();
+        for (Worker worker : availableWorkers) {
+            if (hasDisconnected(worker)) {
+                disconnected.add(worker);
+            }
+        }
+        handleDisconnectedWorkers(disconnected);
+    }
+
     private void handleDisconnectedWorkers(List<Worker> disconnected) {
         for (Worker worker : disconnected) {
             availableTasks.add(worker.getTask());
+            currentlyWorking.remove(worker);
             availableWorkers.remove(worker);
         }
     }
