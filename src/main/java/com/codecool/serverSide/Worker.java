@@ -16,7 +16,7 @@ public class Worker implements Runnable {
 
     Worker(Socket socket) {
         this.socket = socket;
-        this.result = EResult.InProgress;
+        this.result = EResult.New;
     }
 
     EResult getResult() {
@@ -25,7 +25,11 @@ public class Worker implements Runnable {
         }
     }
 
-    public void setResult(EResult result) {
+    Task getTask() {
+        return task;
+    }
+
+    void setResult(EResult result) {
         this.result = result;
     }
 
@@ -54,7 +58,7 @@ public class Worker implements Runnable {
         }
     }
 
-    public synchronized void assignTask(Task task) {
+    synchronized void assignTask(Task task) {
         this.task = task;
         this.result = EResult.InProgress;
         this.notify();
@@ -69,8 +73,8 @@ public class Worker implements Runnable {
     private void handleTask(ObjectInputStream inputStream, ObjectOutputStream outputStream) throws IOException, ClassNotFoundException {
         synchronized (this) {
             outputStream.writeObject(this.task);
-            this.task = null;
             this.result = (EResult) inputStream.readObject();
+            this.task = null;
         }
     }
 }
