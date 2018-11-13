@@ -77,4 +77,12 @@ public class Worker implements Runnable {
             this.task = null;
         }
     }
+
+    public boolean givenNumberIsNotPrime() {
+        return this.result.equals(EResult.Invalid);
+    }
+
+    public boolean isStillWorking() {
+        return this.result.equals(EResult.InProgress);
+    }
 }

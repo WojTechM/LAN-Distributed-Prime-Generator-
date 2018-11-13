@@ -99,11 +99,11 @@ public class Server {
                     disconnected.add(worker);
                 }
 
-                if (isStillWorking(worker)) {
+                if (worker.isStillWorking()) {
                     allWorkersFinished = false;
                 }
 
-                if (numberIsNotPrime(worker)) {
+                if (worker.givenNumberIsNotPrime()) {
                     result = false;
                 }
             }
@@ -135,19 +135,11 @@ public class Server {
         }
     }
 
-    private boolean numberIsNotPrime(Worker worker) {
-        return worker.getResult().equals(EResult.Invalid);
-    }
-
     private boolean hasDisconnected(Worker worker) {
         if (worker == null) {
             return true;
         }
         return worker.getResult().equals(EResult.Disconnected);
-    }
-
-    private boolean isStillWorking(Worker worker) {
-        return worker.getResult().equals(EResult.InProgress);
     }
 
     public synchronized void addWorker(Worker worker) {
