@@ -11,7 +11,7 @@ class ServerTest {
 
     @Test
     void Should_ReturnTrue_When_AllWorkersResultsAreValid() throws LackOfWorkersException {
-        Server server = new Server(8000);
+        Server server = new Server(8000, -1, -1);
         Worker w1 = new Worker(null);
         w1.setResult(EResult.Valid);
         Worker w2 = new Worker(null);
@@ -23,7 +23,7 @@ class ServerTest {
 
     @Test
     void Should_ReturnFalse_When_OneOrMoreWorkersResultsAreInvalid() throws LackOfWorkersException {
-        Server server = new Server(8001);
+        Server server = new Server(8001, -1, -1);
         Worker w1 = new Worker(null);
         w1.setResult(EResult.Valid);
         Worker w2 = new Worker(null);

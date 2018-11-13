@@ -21,7 +21,9 @@ public class App {
                 new Thread(client).start();
                 break;
             case "server":
-                Server server = new Server(port);
+                int baseNumber = Integer.parseInt(getBaseNumber(args));
+                int taskRange = Integer.parseInt(getRangePerTask(args));
+                Server server = new Server(port, baseNumber, taskRange);
                 try {
                     server.run();
                 } catch (InterruptedException e) {
@@ -40,38 +42,77 @@ public class App {
             throw new IllegalArgumentException("Available modes are: 'client' and 'server'");
         }
 
-        try {
-            String portString = getPort(args);
-            Integer.valueOf(portString);
-        } catch (NumberFormatException e) {
+        validatePort(args);
+
+        if (mode.equalsIgnoreCase("server")) {
+            validateServerArguments(args);
+        }
+    }
+
+    private static void validateServerArguments(String[] args) throws IllegalArgumentException {
+        if (args.length == 3) {
+            return;
+        }
+        String startFromNumber = getBaseNumber(args);
+        if (!isNumeric(startFromNumber)) {
+            throw new IllegalArgumentException("Given base number is not numeric!");
+        }
+
+        String rangePerTask = getRangePerTask(args);
+        if (!isNumeric(rangePerTask)) {
+            throw new IllegalArgumentException("Given task range is not numeric!");
+        }
+    }
+
+
+    private static void validatePort(String[] args) {
+        String portString = getPort(args);
+        if (!isNumeric(portString)) {
             throw new IllegalArgumentException("Port must be a number!");
+        }
+    }
+
+    private static boolean isNumeric(String number) {
+        try {
+            Integer.valueOf(number);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
     }
 
     private static boolean isValidNumberOfArgs(String[] args) {
         int length = args.length;
-        return length == 2 || length == 3;
-    }
-
-    private static String getMode(String[] args) {
-        return args[0];
+        return length > 2 && length <= 5;
     }
 
     private static boolean isValidMode(String mode) {
         return mode.equalsIgnoreCase("client") || mode.equalsIgnoreCase("server");
     }
 
-    private static String getPort(String[] args) {
-        if (args.length == 2) {
-            return args[1];
-        }
-        return args[2];
+    private static String getMode(String[] args) {
+        return args[0];
     }
 
     private static String getAddress(String[] args) {
-        if (args.length == 2) {
-            return "localhost";
-        }
         return args[1];
+    }
+
+    private static String getPort(String[] args) {
+        return args[2];
+    }
+
+    private static String getBaseNumber(String[] args) {
+        if (args.length == 3) {
+            return "3";
+        }
+        return args[3];
+    }
+
+    private static String getRangePerTask(String[] args) {
+        if (args.length == 3) {
+            return "250";
+        }
+        return args[4];
     }
 }

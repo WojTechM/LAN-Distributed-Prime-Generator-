@@ -14,15 +14,18 @@ public class Server {
     private List<Worker> availableWorkers = Collections.synchronizedList(new ArrayList<>());
     Set<Worker> currentlyWorking = new HashSet<>();
     private List<Task> availableTasks = new ArrayList<>();
+    private int potentialPrime;
+    private int taskRange;
 
-    public Server(int port) {
+    public Server(int port, int startFromNumber, int taskRange) {
         WorkerRegistration registration = new WorkerRegistration(this, port);
         Thread registrationThread = new Thread(registration);
         registrationThread.start();
+        this.potentialPrime = startFromNumber;
+        this.taskRange = taskRange;
     }
 
     public void run() throws InterruptedException {
-        int potentialPrime = 3;
         ValidationResultHandler resultHandler = new ValidationResultHandler();
         while (!Thread.currentThread().isInterrupted()) {
             boolean isPrime = checkIfIsPrime(potentialPrime);
@@ -65,8 +68,8 @@ public class Server {
         boolean reachedEnd = false;
         int iteration = 0;
         while (!reachedEnd) {
-            int from = iteration * 100;
-            int to = from + 100;
+            int from = iteration * taskRange;
+            int to = from + taskRange;
             if (to > potentialPrime) {
                 to = potentialPrime - 1;
                 reachedEnd = true;
