@@ -12,6 +12,7 @@ public class Client implements Runnable {
 
     private String address;
     private int port;
+    private int previousTask = -1;
 
     public Client(String address, int port) {
         this.address = address;
@@ -40,6 +41,7 @@ public class Client implements Runnable {
                 Task task = (Task) inputStream.readObject();
                 EResult result = partialCheck(task);
                 outputStream.writeObject(result);
+                showProgress(task);
             } catch (IOException | ClassNotFoundException e) {
                 System.out.println("Could not load task. Shutting down connection.");
                 break;
@@ -86,5 +88,13 @@ public class Client implements Runnable {
             return defaultLimit;
         }
         return requested;
+    }
+
+    private void showProgress(Task task) {
+        int currentTask = task.getPotentialPrime();
+        if (currentTask != previousTask) {
+            System.out.printf("Validating number: %o \n", currentTask);
+            previousTask = currentTask;
+        }
     }
 }
