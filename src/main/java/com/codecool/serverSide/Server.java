@@ -3,18 +3,16 @@ package com.codecool.serverSide;
 import com.codecool.model.EResult;
 import com.codecool.model.Task;
 import com.codecool.serverSide.exceptions.LackOfWorkersException;
+import com.codecool.serverSide.resultHandler.ValidationResultHandler;
 import com.codecool.serverSide.workers.Worker;
 import com.codecool.serverSide.workers.WorkerRegistration;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 
 public class Server {
 
     private List<Worker> availableWorkers = Collections.synchronizedList(new ArrayList<>());
-    protected Set<Worker> currentlyWorking = new HashSet<>();
+    Set<Worker> currentlyWorking = new HashSet<>();
     private List<Task> availableTasks = new ArrayList<>();
 
     public Server(int port) {
@@ -25,29 +23,12 @@ public class Server {
 
     public void run() throws InterruptedException {
         int potentialPrime = 3;
+        ValidationResultHandler resultHandler = new ValidationResultHandler();
         while (!Thread.currentThread().isInterrupted()) {
             boolean isPrime = checkIfIsPrime(potentialPrime);
-            handleResult(potentialPrime, isPrime);
+            resultHandler.handleResult(potentialPrime, isPrime);
             potentialPrime += 2;
         }
-    }
-
-    private void handleResult(int potentialPrime, boolean isPrime) {
-        if (isPrime) {
-            try {
-                saveToFile(potentialPrime);
-            } catch (IOException e) {
-                System.out.println(potentialPrime);
-            }
-        }
-    }
-
-    private void saveToFile(int potentialPrime) throws IOException {
-        FileWriter fw = new FileWriter("Primes.txt", true);
-        BufferedWriter bw = new BufferedWriter(fw);
-        bw.write(String.valueOf(potentialPrime));
-        bw.newLine();
-        bw.close();
     }
 
     private boolean checkIfIsPrime(int potentialPrime) throws InterruptedException {
