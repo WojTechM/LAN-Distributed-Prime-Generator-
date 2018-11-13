@@ -1,4 +1,4 @@
-package com.codecool.serverSide;
+package com.codecool.serverSide.workers;
 
 import com.codecool.model.EResult;
 import com.codecool.model.Task;
@@ -14,22 +14,22 @@ public class Worker implements Runnable {
     private Socket socket;
     private EResult result;
 
-    Worker(Socket socket) {
+    public Worker(Socket socket) {
         this.socket = socket;
         this.result = EResult.New;
     }
 
-    EResult getResult() {
+    public EResult getResult() {
         synchronized (this) {
             return result;
         }
     }
 
-    Task getTask() {
+    public Task getTask() {
         return task;
     }
 
-    void setResult(EResult result) {
+    public void setResult(EResult result) {
         this.result = result;
     }
 
@@ -58,7 +58,7 @@ public class Worker implements Runnable {
         }
     }
 
-    synchronized void assignTask(Task task) {
+    public synchronized void assignTask(Task task) {
         this.task = task;
         this.result = EResult.InProgress;
         this.notify();

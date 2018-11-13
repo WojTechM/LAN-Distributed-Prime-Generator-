@@ -1,4 +1,6 @@
-package com.codecool.serverSide;
+package com.codecool.serverSide.workers;
+
+import com.codecool.serverSide.Server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -9,7 +11,7 @@ public class WorkerRegistration implements Runnable {
     private final Server server;
     private final int port;
 
-    WorkerRegistration(Server server, int port) {
+    public WorkerRegistration(Server server, int port) {
         this.server = server;
         this.port = port;
     }

@@ -2,6 +2,7 @@ package com.codecool.serverSide;
 
 import com.codecool.model.EResult;
 import com.codecool.serverSide.exceptions.LackOfWorkersException;
+import com.codecool.serverSide.workers.Worker;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,9 +16,8 @@ class ServerTest {
         w1.setResult(EResult.Valid);
         Worker w2 = new Worker(null);
         w2.setResult(EResult.Valid);
-        server.addWorker(w1);
-        server.addWorker(w2);
-
+        server.currentlyWorking.add(w1);
+        server.currentlyWorking.add(w2);
         assertTrue(server.validateResult());
     }
 
@@ -28,8 +28,8 @@ class ServerTest {
         w1.setResult(EResult.Valid);
         Worker w2 = new Worker(null);
         w2.setResult(EResult.Invalid);
-        server.addWorker(w1);
-        server.addWorker(w2);
+        server.currentlyWorking.add(w1);
+        server.currentlyWorking.add(w2);
 
         assertFalse(server.validateResult());
     }

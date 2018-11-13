@@ -3,6 +3,8 @@ package com.codecool.serverSide;
 import com.codecool.model.EResult;
 import com.codecool.model.Task;
 import com.codecool.serverSide.exceptions.LackOfWorkersException;
+import com.codecool.serverSide.workers.Worker;
+import com.codecool.serverSide.workers.WorkerRegistration;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -12,7 +14,7 @@ import java.util.*;
 public class Server {
 
     private List<Worker> availableWorkers = Collections.synchronizedList(new ArrayList<>());
-    private Set<Worker> currentlyWorking = new HashSet<>();
+    protected Set<Worker> currentlyWorking = new HashSet<>();
     private List<Task> availableTasks = new ArrayList<>();
 
     public Server(int port) {
@@ -167,7 +169,7 @@ public class Server {
         return worker.getResult().equals(EResult.InProgress);
     }
 
-    synchronized void addWorker(Worker worker) {
+    public synchronized void addWorker(Worker worker) {
         availableWorkers.add(worker);
         this.notify();
     }
