@@ -56,7 +56,7 @@ public class Client implements Runnable {
             outputStream.writeObject(EResult.Disconnected);
             connection.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Connection closed.");
         }
     }
 
