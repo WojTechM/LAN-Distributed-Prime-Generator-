@@ -91,10 +91,6 @@ public class Client implements Runnable {
     }
 
     private void showProgress(Task task) {
-        int currentTask = task.getPotentialPrime();
-        if (currentTask != previousTask) {
-            System.out.printf("Validating number: %o \n", currentTask);
-            previousTask = currentTask;
-        }
+        System.out.println(task);
     }
 }

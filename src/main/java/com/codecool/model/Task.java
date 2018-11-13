@@ -25,4 +25,13 @@ public class Task implements Serializable {
     public int getTo() {
         return to;
     }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "potentialPrime=" + potentialPrime +
+                ", from=" + from +
+                ", to=" + to +
+                '}';
+    }
 }

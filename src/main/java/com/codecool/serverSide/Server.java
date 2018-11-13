@@ -98,6 +98,7 @@ public class Server {
             boolean allWorkersFinished = true;
             boolean result = true;
             for (Worker worker : this.currentlyWorking) {
+                System.out.println(worker.getTask() + "  " + worker.getResult());
                 if (hasDisconnected(worker)) {
                     disconnected.add(worker);
                 }
