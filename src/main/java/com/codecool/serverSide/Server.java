@@ -4,6 +4,9 @@ import com.codecool.model.EResult;
 import com.codecool.model.Task;
 import com.codecool.serverSide.exceptions.LackOfWorkersException;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class Server {
@@ -21,21 +24,31 @@ public class Server {
     public void run() throws InterruptedException {
         int potentialPrime = 3;
         while (!Thread.currentThread().isInterrupted()) {
-            boolean isPrime = isPrime(potentialPrime);
-            printResult(potentialPrime, isPrime);
+            boolean isPrime = checkIfIsPrime(potentialPrime);
+            handleResult(potentialPrime, isPrime);
             potentialPrime += 2;
         }
     }
 
-    private void printResult(int potentialPrime, boolean isPrime) {
+    private void handleResult(int potentialPrime, boolean isPrime) {
         if (isPrime) {
-            System.out.println(potentialPrime + " is Prime!");
-        } else {
-            System.out.println(potentialPrime + " is not Prime!");
+            try {
+                saveToFile(potentialPrime);
+            } catch (IOException e) {
+                System.out.println(potentialPrime);
+            }
         }
     }
 
-    private boolean isPrime(int potentialPrime) throws InterruptedException {
+    private void saveToFile(int potentialPrime) throws IOException {
+        FileWriter fw = new FileWriter("Primes.txt", true);
+        BufferedWriter bw = new BufferedWriter(fw);
+        bw.write(String.valueOf(potentialPrime));
+        bw.newLine();
+        bw.close();
+    }
+
+    private boolean checkIfIsPrime(int potentialPrime) throws InterruptedException {
         if (availableWorkers.isEmpty()) {
             waitForWorkers();
         }
